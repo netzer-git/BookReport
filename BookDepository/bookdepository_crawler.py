@@ -1,4 +1,4 @@
-import os
+import time
 import requests
 from bs4 import BeautifulSoup
 import pandas as pd
@@ -25,6 +25,7 @@ CATEGORY_URL = [
     '/category/3013/Sport'
 ]
 URL_SUFFIX = '/browse/viewmode/all'
+OUTPUT_FILE_NAME = 'Bookdepository_Crawler'
 
 GET_NUMBERS = False
 BESTSELLERS = False
@@ -45,7 +46,7 @@ def get_clean_title(title):
     :param title: book's title
     :return: cleaned title
     """
-    return None if title is None else title.split(':')[0]
+    return None if title is None else (title.split(':')[0]).lower()
 
 
 def get_rating_avg(book):
@@ -218,6 +219,18 @@ def get_publication_date(book):
     return None
 
 
+def activate_request(url):
+    while True:
+        try:
+            r = requests.get(url)
+            break
+        except Exception as e:
+            print("Web Request Failed - Probably connection error")
+            print("LOADING...")
+            time.sleep(1)
+    return r
+
+
 def get_one_data_from_book(book):
     """
     :param book: BeautifulSoup element of a book page
@@ -279,7 +292,7 @@ def get_data_from_30_pages(main_bestsellers_url):
     :return: TODO
     """
     global duplicates
-    r = requests.get(main_bestsellers_url)
+    r = activate_request(main_bestsellers_url)
     data = []
     names = set()
 
@@ -335,11 +348,12 @@ def write_data_to_xl(data):
     :param data: [{url: , ... }, ... { ... }]
     """
     labels = ['title', 'clean_title', 'authors', 'bestsellers-rank', 'categories', 'description', 'isbn13', 'format',
-              'publication-date', 'rating-avg', 'rating-count', 'url', 'publisher', 'clean-publisher', 'crawl_id']
+              'publication-date', 'rating-avg', 'rating-count', 'url', 'publisher', 'clean-publisher', 'price',
+              'crawl_id']
     ABC = ['A', 'B', 'C', 'D', 'E', 'F', 'G', 'H', 'I', 'J', 'K', 'L', 'M', 'N', 'O', 'P', 'Q', 'R', 'S', 'T', 'U', 'V']
 
     wb = Workbook()
-    wb['Sheet'].title = "Bookdepository_Crawler"
+    wb['Sheet'].title = OUTPUT_FILE_NAME
     sheet1 = wb.active
 
     for i in range(len(labels)):
@@ -350,7 +364,7 @@ def write_data_to_xl(data):
             entry = data[i]
             sheet1[ABC[j] + str(i + 2)].value = str(entry[labels[j]])  # fixme !!!!
 
-    wb.save("Bookdepository_Crawler_fantasy.xlsx")
+    wb.save(OUTPUT_FILE_NAME + ".xlsx")
 
 
 if __name__ == '__main__':
@@ -380,7 +394,8 @@ if __name__ == '__main__':
                 full_data += page_data
                 full_names.update(page_names)
                 # get the url for the next page
-                soup = BeautifulSoup(requests.get(current_url).text, 'html.parser')
+                r = activate_request(current_url)
+                soup = BeautifulSoup(r.text, 'html.parser')
                 current_url = BASE_URL + category + URL_SUFFIX + '?page=' + str(i + 1)
 
     # write data to xlsx
