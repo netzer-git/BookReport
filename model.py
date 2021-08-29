@@ -1,30 +1,13 @@
-from sklearn.linear_model import LinearRegression
-from sklearn.impute import SimpleImputer
+from sklearn.ensemble import RandomForestClassifier
 import pandas as pd
 
 if __name__ == '__main__':
-    df = pd.read_excel('Bookdepository/Fantasy.xlsx')
-    X = [df['rating-avg'], df['rating-count'], df['price']]
-    # X = [df['rating-count']]
-    y = [df['bestsellers-rank']]
-    X = pd.concat(X, axis=1, keys=['rating-avg', 'rating-count', 'price'])
-    # X = pd.concat(X, axis=1, keys=['rating-count'])
-    y = pd.concat(y, axis=1, keys=['bestsellers-rank'])
+    from sklearn.datasets import make_classification
 
-    print(X)
-    print(y)
+    X, y = make_classification(n_samples=1000, n_features=4,
+                               n_informative=2, n_redundant=0,
+                               random_state=0, shuffle=False)
 
-    # imp = SimpleImputer(missing_values=None, strategy='mean')
-    # imp.fit_transform(X)
-    # imp.fit_transform(y)
-
-    model = LinearRegression().fit(X, y)
-    r_sq = model.score(X, y)
-    print('coefficient of determination:', r_sq)
-    print('intercept:', model.intercept_)
-    print('slope:', model.coef_)
-
-    d = pd.DataFrame({'rating_count': [123],
-                      'rating-avg': [4.4],
-                      'price': [50]})
-    print("prediction: " + str(model.predict(d)))
+    clf = RandomForestClassifier(max_depth=100, random_state=0)
+    clf.fit(X, y)
+    print(clf.predict([[2, 1, 1, 115]]))
