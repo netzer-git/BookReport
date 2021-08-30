@@ -1,26 +1,6 @@
 import pandas as pd
-
-RATING_AVG_COLUMN_NAME = 'rating-avg'
-RATING_COUNT_COLUMN_NAME = 'rating-count'
-BESTSELLERS_COLUMN_NAME = 'bestsellers-rank'
-NUMERIC_AUTHOR_RANK_COLUMN_NAME = 'authors-rank'
-NUMERIC_PUBLISHER_RANK_COLUMN_NAME = 'clean-publisher-rank'
-
-NON_NUMERIC_COLUMNS = ['title',
-                       'clean_title',
-                       'authors',
-                       'categories',
-                       'description',
-                       'isbn13',
-                       # 'format',
-                       # 'publication-date',
-                       'url',
-                       'publisher',
-                       'clean-publisher',
-                       'crawl_id']
-
-PRICE_COLUMN_NAME = 'price'
-BESTSELLERS_SCORE = 5000
+from sklearn import preprocessing
+import Constants
 
 
 def normalize_column(df, feature_name):
@@ -32,12 +12,20 @@ def normalize_column(df, feature_name):
 
 
 def normalize_data(df):
-    df = normalize_column(df, PRICE_COLUMN_NAME)
-    df = normalize_column(df, RATING_AVG_COLUMN_NAME)
-    df = normalize_column(df, RATING_COUNT_COLUMN_NAME)
+    # df = normalize_column(df, Constants.PRICE_COLUMN_NAME)
+    # df = normalize_column(df, Constants.RATING_AVG_COLUMN_NAME)
+    # df = normalize_column(df, Constants.RATING_COUNT_COLUMN_NAME)
+    #
+    # df = normalize_column(df, Constants.NUMERIC_AUTHOR_RANK_COLUMN_NAME)
+    # df = normalize_column(df, Constants.NUMERIC_PUBLISHER_RANK_COLUMN_NAME)
 
-    df = normalize_column(df, NUMERIC_AUTHOR_RANK_COLUMN_NAME)
-    df = normalize_column(df, NUMERIC_PUBLISHER_RANK_COLUMN_NAME)
+    target = df[Constants.BESTSELLERS_COLUMN_NAME]  # save the target column un-normalize
+    df.drop(Constants.BESTSELLERS_COLUMN_NAME, axis=1, inplace=True)
+    x = df.values
+    min_max_scaler = preprocessing.MinMaxScaler()
+    x_scaled = min_max_scaler.fit_transform(x)
+    df = pd.DataFrame(x_scaled, columns=df.columns)
+    df[Constants.BESTSELLERS_COLUMN_NAME] = target
     return df
 
 
@@ -48,10 +36,10 @@ def drop_textual_columns(df, columns_lst):
 
 
 if __name__ == '__main__':
-    fantasy = pd.read_excel('BookDepository/Fantasy.xlsx')
-    fantasy = normalize_data(fantasy)
-    fantasy = drop_textual_columns(fantasy, NON_NUMERIC_COLUMNS)
-    print(fantasy)
-    print(fantasy.columns)
-    fantasy.to_excel('after.xlsx', index=False)
+    main_df = pd.read_excel('BookDepository/Full.xlsx')
+    main_df = drop_textual_columns(main_df, Constants.NON_NUMERIC_COLUMNS)
+    main_df = normalize_data(main_df)
+    print(main_df)
+    print(main_df.columns)
+    main_df.to_excel(Constants.XL_PROCESSED, index=False)
 

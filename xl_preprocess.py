@@ -1,7 +1,8 @@
 import pandas as pd
 from pip._internal.cli.status_codes import SUCCESS
+import Constants
 
-XL_ROOT = 'BookDepository/Fantasy.xlsx'
+XL_ROOT = 'BookDepository/Full.xlsx'
 XL_AUTHORS_OUTPUT = 'Best_Authors.xlsx'
 XL_PUBLISHERS_OUTPUT = 'Best_Publishers.xlsx'
 AUTHORS_COLUMN_NAME = 'authors'
@@ -9,8 +10,6 @@ PUBLISHERS_COLUMN_NAME = "clean-publisher"
 CATEGORIES_COLUMN_NAME = "categories"
 BESTSELLERS_COLUMN_NAME = 'bestsellers-rank'
 BEST_AUTHOR_RANK = 30_000
-BIG_PUBLISHERS_BOOK_NUM = 30
-BOOK_NUM_IN_CATEGORY = 150
 
 
 def split_category_field(category_str):
@@ -38,7 +37,7 @@ def analyze_categories(df):
 
     categories_list = []
     for c in categories_dict:
-        if categories_dict[c][1] > BOOK_NUM_IN_CATEGORY:
+        if categories_dict[c][1] > Constants.BOOK_NUM_IN_CATEGORY:
             categories_list.append(c)
     return categories_list
 
@@ -63,7 +62,7 @@ def get_rank_dict(df, column_name):
 
 
 def write_binary_big_publishers_column(df, rank_dict):
-    big_publishers_lst = [key for key in rank_dict if rank_dict[key][1] > BIG_PUBLISHERS_BOOK_NUM]
+    big_publishers_lst = [key for key in rank_dict if rank_dict[key][1] > Constants.BIG_PUBLISHERS_BOOK_NUM]
     new_column = []
     for p in df[PUBLISHERS_COLUMN_NAME]:
         new_column.append(int(p in big_publishers_lst))
