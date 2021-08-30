@@ -1,13 +1,19 @@
-from sklearn.ensemble import RandomForestClassifier
+from sklearn.ensemble import RandomForestRegressor
+from sklearn.model_selection import train_test_split
+from sklearn.metrics import r2_score, mean_squared_error
 import pandas as pd
+import df_preprocess
+
+
+def run_model(df):
+    # FIXME: do we need reshape?
+    y = df[df_preprocess.BESTSELLERS_COLUMN_NAME].reshape(-1, 1)
+    X = df.drop(columns=[df_preprocess.BESTSELLERS_COLUMN_NAME]).reshape(-1, 1)
+
+    X_train, X_test, y_train, y_test = train_test_split(X, y, test_size=0.25, random_state=42)
+    regr = RandomForestRegressor(random_state=0)
+    regr.fit(X_train, y_train)
+
 
 if __name__ == '__main__':
-    from sklearn.datasets import make_classification
-
-    X, y = make_classification(n_samples=1000, n_features=4,
-                               n_informative=2, n_redundant=0,
-                               random_state=0, shuffle=False)
-
-    clf = RandomForestClassifier(max_depth=100, random_state=0)
-    clf.fit(X, y)
-    print(clf.predict([[2, 1, 1, 115]]))
+    pass
