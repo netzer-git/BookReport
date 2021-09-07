@@ -1,3 +1,6 @@
+"""
+Constants file
+"""
 # XL file names
 XL_SCRAPED = 'dbSlices/BD_Crawler.xlsx'
 XL_ROOT = 'xl_process/BD_Crawler_Full.xlsx'
@@ -60,3 +63,8 @@ CATEGORY_URL = [
 ]
 URL_SUFFIX = '/browse/viewmode/all'
 OUTPUT_FILE_NAME = 'BD_Crawler'
+GET_NUMBERS = False
+BESTSELLERS = False
+NUMBER_OF_PAGES = 100
+crawl_id = 0
+duplicates = 0
