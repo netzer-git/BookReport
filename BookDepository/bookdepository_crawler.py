@@ -4,6 +4,8 @@ from bs4 import BeautifulSoup
 import pandas as pd
 from openpyxl import Workbook
 
+import Constants
+
 BASE_URL = 'https://www.bookdepository.com'
 BESTSELLERS_URL = '/bestsellers'
 CATEGORY_URL = [
@@ -25,7 +27,6 @@ CATEGORY_URL = [
     '/category/3013/Sport'
 ]
 URL_SUFFIX = '/browse/viewmode/all'
-OUTPUT_FILE_NAME = 'Bookdepository_Crawler'
 
 GET_NUMBERS = False
 BESTSELLERS = False
@@ -351,7 +352,7 @@ def write_data_to_xl(data):
     ABC = ['A', 'B', 'C', 'D', 'E', 'F', 'G', 'H', 'I', 'J', 'K', 'L', 'M', 'N', 'O', 'P', 'Q', 'R', 'S', 'T', 'U', 'V']
 
     wb = Workbook()
-    wb['Sheet'].title = OUTPUT_FILE_NAME
+    wb['Sheet'].title = Constants.OUTPUT_FILE_NAME
     sheet1 = wb.active
 
     for i in range(len(labels)):
@@ -362,7 +363,7 @@ def write_data_to_xl(data):
             entry = data[i]
             sheet1[ABC[j] + str(i + 2)].value = str(entry[labels[j]])  # fixme !!!!
 
-    wb.save(OUTPUT_FILE_NAME + ".xlsx")
+    wb.save(Constants.OUTPUT_FILE_NAME + ".xlsx")
 
 
 if __name__ == '__main__':
