@@ -1,8 +1,9 @@
 # XL file names
-XL_ROOT = 'BookDepository/Fantasy.xlsx'
-XL_PROCESSED = 'AfterProcessData.xlsx'
-XL_AUTHORS_OUTPUT = 'Best_Authors.xlsx'
-XL_PUBLISHERS_OUTPUT = 'Best_Publishers.xlsx'
+XL_SCRAPED = 'dbSlices/BD_Crawler.xlsx'
+XL_ROOT = 'xl_process/BD_Crawler_Full.xlsx'
+XL_PROCESSED = 'xl_process/AfterProcessData.xlsx'
+XL_AUTHORS_OUTPUT = 'xl_process/Best_Authors'
+XL_PUBLISHERS_OUTPUT = 'xl_process/Best_Publishers'
 # Column names
 AUTHORS_COLUMN_NAME = 'authors'
 PUBLISHERS_COLUMN_NAME = "clean-publisher"
@@ -19,14 +20,43 @@ NON_NUMERIC_COLUMNS = ['title',
                        'categories',
                        'description',
                        'isbn13',
-                       # 'format',
-                       # 'publication-date',
+                       'format',
+                       'publication-date',
                        'url',
                        'publisher',
                        'clean-publisher',
                        'crawl_id']
+LOG_COLUMNS = ['rating-count',
+               'clean-publisher-rank',
+               'authors-rank']
 # Analyzing scores
 BEST_AUTHOR_RANK = 30_000
-BIG_PUBLISHERS_BOOK_NUM = 100
-BOOK_NUM_IN_CATEGORY = 1_000
+BIG_PUBLISHERS_BOOK_NUM = 1_000
+BOOK_NUM_IN_CATEGORY = 3_500
 BESTSELLERS_SCORE = 5000
+CATEGORIES_LIST = ['ContemporaryFiction', 'Fantasy', 'Mind', 'Memoirs', 'FunnyBooks&Stories', 'GraphicNovels',
+                   'Anime&Manga', 'ScienceFiction', 'Crime', 'CrimeFiction']
+
+# Crawling Constants
+BASE_URL = 'https://www.bookdepository.com'
+BESTSELLERS_URL = '/bestsellers'
+CATEGORY_URL = [
+    '/category/2/Art-Photography',
+    '/category/213/Biography',
+    '/category/2455/Childrens-Books',
+    '/category/2942/Crafts-Hobbies',
+    '/category/2616/Crime-Thriller',
+    '/category/333/Fiction',
+    '/category/2885/Beverages',
+    '/category/2633/Graphic-Novels-Anime-Manga',
+    '/category/2638/History-Archaeology',
+    '/category/2819/Mind-Body-Spirit',
+    '/category/2623/Science-Fiction-Fantasy-Horror',
+    '/category/928/Business-Finance-Law',
+    '/category/2978/Humour',
+    '/category/2985/Natural-History',
+    '/category/3391/Teen-Young-Adult',
+    '/category/3013/Sport'
+]
+URL_SUFFIX = '/browse/viewmode/all'
+OUTPUT_FILE_NAME = 'BD_Crawler'

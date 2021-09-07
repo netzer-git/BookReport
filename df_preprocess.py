@@ -1,4 +1,7 @@
+from unittest.mock import inplace
+
 import pandas as pd
+import numpy as np
 from sklearn import preprocessing
 import Constants
 
@@ -23,7 +26,9 @@ def normalize_data(df):
     df.drop(Constants.BESTSELLERS_COLUMN_NAME, axis=1, inplace=True)
     x = df.values
     min_max_scaler = preprocessing.MinMaxScaler()
+    # scaler = preprocessing.StandardScaler()
     x_scaled = min_max_scaler.fit_transform(x)
+    # x_scaled = scaler.fit_transform(x)
     df = pd.DataFrame(x_scaled, columns=df.columns)
     df[Constants.BESTSELLERS_COLUMN_NAME] = target
     return df
@@ -36,10 +41,13 @@ def drop_textual_columns(df, columns_lst):
 
 
 if __name__ == '__main__':
-    main_df = pd.read_excel('BookDepository/Full.xlsx')
+    main_df = pd.read_excel(Constants.XL_ROOT)
     main_df = drop_textual_columns(main_df, Constants.NON_NUMERIC_COLUMNS)
+
+    main_df.replace(to_replace='None', value=np.nan, inplace=True)
+    main_df.dropna(inplace=True)
+
     main_df = normalize_data(main_df)
     print(main_df)
     print(main_df.columns)
     main_df.to_excel(Constants.XL_PROCESSED, index=False)
-
