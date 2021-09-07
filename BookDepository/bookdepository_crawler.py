@@ -78,14 +78,12 @@ def get_price(book):
     """
     try:
         return float(book.find(class_='sale-price').text[1:])
-    except AttributeError:
+    except (AttributeError, ValueError):
         try:
             return float(
                 ''.join(char for char in book.find(class_='list-price').text if (char.isdigit() or char == '.')))
-        except AttributeError:
+        except (AttributeError, ValueError):
             return None
-    except ValueError:
-        return float(''.join(char for char in book.find(class_='sale-price').text if (char.isdigit() or char == '.')))
 
 
 def get_bestsellers_rank(book):
