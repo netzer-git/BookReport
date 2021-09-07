@@ -5,6 +5,11 @@ from openpyxl import Workbook
 
 
 def split_category_field(category_str):
+    """
+    scrape the categories field from the crawled format
+    :param category_str: category string as in the crawled format
+    :return: category list
+    """
     category_lst = category_str.split(',')
     for i in range(len(category_lst)):
         category_lst[i] = category_lst[i].replace('\"', '').replace('\'', '').replace('[', '').replace(']', '')
@@ -14,6 +19,11 @@ def split_category_field(category_str):
 
 
 def analyze_categories(path):
+    """
+    run over the excel file and extract a list of the big categories
+    :param path: path to excel file
+    :return: a list of the big categories
+    """
     df = pd.read_excel(path)
     categories_dict = {}
     for i in range(len(df[Constants.CATEGORIES_COLUMN_NAME])):
@@ -40,6 +50,12 @@ def analyze_categories(path):
 
 
 def get_rank_dict(df, column_name):
+    """
+    analyze the df and get a dict of rank of the entries of column_name
+    :param df: the full df
+    :param column_name: the name of the analyzed column
+    :return: dict {entry: [sum_of_rank, num_of_books, rank_avg]
+    """
     rank_dict = {}
     for i in range(len(df[column_name])):
         name = df[column_name][i]
@@ -62,6 +78,12 @@ def get_rank_dict(df, column_name):
 
 
 def write_binary_big_publishers_column(df, rank_dict):
+    """
+    with the rank_dict of the publisher, crate binary column with 1 for the big publisher's books
+    :param df: the full df
+    :param rank_dict: the rank dict of the publishers
+    :return: the df, with the binary columns
+    """
     big_publishers_lst = [key for key in rank_dict if rank_dict[key][1] > Constants.BIG_PUBLISHERS_BOOK_NUM]
     new_column = []
     for p in df[Constants.PUBLISHERS_COLUMN_NAME]:
@@ -72,6 +94,13 @@ def write_binary_big_publishers_column(df, rank_dict):
 
 
 def write_binary_categories_columns(df, categories_list):
+    """
+    with the list of the big categories, crate binary column with 1 for the books in those categories, one column for
+    each category
+    :param df: the full df
+    :param categories_list: the list of the big categories
+    :return: the df, with the binary columns
+    """
     new_columns = {c: [] for c in categories_list}
     for i in range(len(df['crawl_id'])):
         entry_categories = split_category_field(df[Constants.CATEGORIES_COLUMN_NAME][i])
@@ -85,6 +114,13 @@ def write_binary_categories_columns(df, categories_list):
 
 
 def write_numeric_rank_column(df, rank_dict, column_name):
+    """
+    add the numeric columns from the rank_dict
+    :param df: the full df
+    :param rank_dict: the rank_dict to fill
+    :param column_name: the name of the original column
+    :return: the df with the new column
+    """
     new_column = []
     for a in df[column_name]:
         new_column.append(rank_dict[a][2])
@@ -94,6 +130,11 @@ def write_numeric_rank_column(df, rank_dict, column_name):
 
 
 def write_ranks_to_xl(rank_dict, path):
+    """
+    save the rank dict to excel file for further analyzation
+    :param rank_dict: the rank_dict
+    :param path: the path to the new excel file
+    """
     wb = Workbook()
     wb['Sheet'].title = 'sheet1'
     sheet1 = wb.active
@@ -114,6 +155,12 @@ def write_ranks_to_xl(rank_dict, path):
 
 
 def preprocess_scraped_xl(path_in, path_out):
+    """
+    take the scraped excel and preprocess as wanted.
+    :param path_in: path to input file
+    :param path_out: path to output file
+    :return: SUCCESS
+    """
     # reading excel to df
     df = pd.read_excel(path_in)
     # organize the data

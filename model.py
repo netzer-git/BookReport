@@ -12,7 +12,7 @@ import Constants
 def run_model(df):
     """
     main model run
-    :param df: the main analyized df, with the target column
+    :param df: the main analyzed df, with the target column
     """
     df.dropna(inplace=True)
 

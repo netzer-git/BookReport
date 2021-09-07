@@ -1,5 +1,3 @@
-from unittest.mock import inplace
-
 import pandas as pd
 import numpy as np
 from sklearn import preprocessing
@@ -7,6 +5,12 @@ import Constants
 
 
 def normalize_column(df, feature_name):
+    """
+    normalize one column with mean-value
+    :param df: the full df
+    :param feature_name: column name
+    :return: the updated df
+    """
     # max_value = df[feature_name].max()
     # min_value = df[feature_name].min()
     # df[feature_name] = (df[feature_name] - min_value) / (max_value - min_value)
@@ -15,6 +19,11 @@ def normalize_column(df, feature_name):
 
 
 def normalize_data(df):
+    """
+    normalize all of the df columns, one by one, using preprocessing Scaler
+    :param df: the full df
+    :return: the updated df
+    """
     # df = normalize_column(df, Constants.PRICE_COLUMN_NAME)
     # df = normalize_column(df, Constants.RATING_AVG_COLUMN_NAME)
     # df = normalize_column(df, Constants.RATING_COUNT_COLUMN_NAME)
@@ -35,6 +44,12 @@ def normalize_data(df):
 
 
 def drop_textual_columns(df, columns_lst):
+    """
+    drops from the df list of columns
+    :param df: the full df
+    :param columns_lst: list of column names
+    :return: the updated df
+    """
     df = df.loc[:, ~df.columns.str.contains('^Unnamed')]
     # df.drop(df.columns[df.columns.str.contains('unnamed', case=False)], axis=1, inplace=True)
     return df.drop(columns=columns_lst, inplace=False)
