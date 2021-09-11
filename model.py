@@ -17,7 +17,7 @@ def run_model(df):
     df.dropna(inplace=True)
 
     y = df[Constants.BESTSELLERS_COLUMN_NAME]
-    X = df.drop(columns=[Constants.BESTSELLERS_COLUMN_NAME])#.drop(columns=['authors-rank'])
+    X = df.drop(columns=[Constants.BESTSELLERS_COLUMN_NAME])
 
     X_train, X_test, y_train, y_test = train_test_split(X, y, test_size=0.25, random_state=42)
     rfg = RandomForestRegressor(random_state=0)

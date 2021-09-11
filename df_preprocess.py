@@ -66,3 +66,4 @@ if __name__ == '__main__':
     print(main_df)
     print(main_df.columns)
     main_df.to_excel(Constants.XL_PROCESSED, index=False)
+    print('DataFrame Preprocess Complete')

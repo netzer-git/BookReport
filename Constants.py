@@ -32,7 +32,10 @@ NON_NUMERIC_COLUMNS = ['title',
 LOG_COLUMNS = ['rating-count',
                'clean-publisher-rank',
                'authors-rank']
+COUNT = 'count'
+AVG = 'AVG'
 # Analyzing scores
+WORST_BESTSELLERS = 1_000_000  #_000_000
 BEST_AUTHOR_RANK = 30_000
 BIG_PUBLISHERS_BOOK_NUM = 1_000
 BOOK_NUM_IN_CATEGORY = 3_500

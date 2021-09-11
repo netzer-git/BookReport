@@ -49,20 +49,22 @@ def analyze_categories(path):
     return categories_list
 
 
-def get_rank_dict(df, column_name):
+def get_rank_dict(df, column_name, target_column):
     """
     analyze the df and get a dict of rank of the entries of column_name
     :param df: the full df
     :param column_name: the name of the analyzed column
+    :param target_column: the column to be analyzed as pointes
     :return: dict {entry: [sum_of_rank, num_of_books, rank_avg]
     """
     rank_dict = {}
     for i in range(len(df[column_name])):
         name = df[column_name][i]
         try:
-            rank = float(df[Constants.BESTSELLERS_COLUMN_NAME][i])
+            # rank = float(df[Constants.BESTSELLERS_COLUMN_NAME][i])
+            rank = float(df[target_column][i])
         except ValueError:
-            print(f"ValueError: \'{rank}\'")
+            print(f"ValueError: \'{df[target_column][i]}\'")
 
         if name is not None and name in rank_dict:
             rank_dict[name][0] += rank
@@ -113,19 +115,20 @@ def write_binary_categories_columns(df, categories_list):
     return df
 
 
-def write_numeric_rank_column(df, rank_dict, column_name):
+def write_numeric_rank_column(df, rank_dict, column_name, suffix):
     """
     add the numeric columns from the rank_dict
     :param df: the full df
     :param rank_dict: the rank_dict to fill
     :param column_name: the name of the original column
+    :param suffix: the ending of the new column name
     :return: the df with the new column
     """
     new_column = []
     for a in df[column_name]:
         new_column.append(rank_dict[a][2])
 
-    df[column_name + '-rank'] = new_column
+    df[column_name + '-rank-' + suffix] = new_column
     return df
 
 
@@ -154,6 +157,42 @@ def write_ranks_to_xl(rank_dict, path):
     wb.save(path + '.xlsx')
 
 
+def drop_single_book_entries(df, rank_dict):
+    """
+    dropping each row where the book's author has just 1 book overall
+    :param df: the main df
+    :param rank_dict: the authors ranks of bestsellers-rank
+    :return: the df without the columns
+    """
+    drop_list = []
+    for i in range(len(df[Constants.AUTHORS_COLUMN_NAME])):
+        author = df[Constants.AUTHORS_COLUMN_NAME][i]
+        if rank_dict[author][1] == 1:
+            drop_list.append(i)
+    df.drop(drop_list, inplace=True)
+    return df
+
+
+def drop_bestsellers_outliers(df):
+    """
+    run over the df and drop the outliers target numbers.
+    :param df: the main df
+    :return: the df without outliers
+    """
+    drop_list = []
+    for i in range(len(df[Constants.BESTSELLERS_COLUMN_NAME])):
+        try:
+            rank = df[Constants.BESTSELLERS_COLUMN_NAME][i]
+            if rank > Constants.WORST_BESTSELLERS:
+                drop_list.append(i)
+        except KeyError:
+            print('KeyError: ' + str(i))
+        except TypeError:
+            print('TypeError: ' + str(df[Constants.BESTSELLERS_COLUMN_NAME][i]))
+    df.drop(drop_list, inplace=True)
+    return df
+
+
 def preprocess_scraped_xl(path_in, path_out):
     """
     take the scraped excel and preprocess as wanted.
@@ -164,16 +203,32 @@ def preprocess_scraped_xl(path_in, path_out):
     # reading excel to df
     df = pd.read_excel(path_in)
     # organize the data
-    publishers_rank_dict = get_rank_dict(df, Constants.PUBLISHERS_COLUMN_NAME)
-    authors_rank_dict = get_rank_dict(df, Constants.AUTHORS_COLUMN_NAME)
-    write_ranks_to_xl(authors_rank_dict, Constants.XL_AUTHORS_OUTPUT)
-    write_ranks_to_xl(publishers_rank_dict, Constants.XL_PUBLISHERS_OUTPUT)
+    publishers_rank_avg_dict = get_rank_dict(df, Constants.PUBLISHERS_COLUMN_NAME, Constants.RATING_AVG_COLUMN_NAME)
+    publishers_rank_count_dict = get_rank_dict(df, Constants.PUBLISHERS_COLUMN_NAME, Constants.RATING_COUNT_COLUMN_NAME)
+    publishers_rank_dict = get_rank_dict(df, Constants.PUBLISHERS_COLUMN_NAME, Constants.BESTSELLERS_COLUMN_NAME)
+
+    authors_rank_avg_dict = get_rank_dict(df, Constants.AUTHORS_COLUMN_NAME, Constants.RATING_AVG_COLUMN_NAME)
+    authors_rank_count_dict = get_rank_dict(df, Constants.AUTHORS_COLUMN_NAME, Constants.RATING_COUNT_COLUMN_NAME)
+    authors_rank_dict = get_rank_dict(df, Constants.AUTHORS_COLUMN_NAME, Constants.BESTSELLERS_COLUMN_NAME)
+
+    write_ranks_to_xl(authors_rank_count_dict, Constants.XL_AUTHORS_OUTPUT)
+    write_ranks_to_xl(publishers_rank_count_dict, Constants.XL_PUBLISHERS_OUTPUT)
+
     # write binary columns
-    df = write_binary_big_publishers_column(df, publishers_rank_dict)
+    df = write_binary_big_publishers_column(df, publishers_rank_avg_dict)
     df = write_binary_categories_columns(df, Constants.CATEGORIES_LIST)
     # write numeric columns
-    df = write_numeric_rank_column(df, publishers_rank_dict, Constants.PUBLISHERS_COLUMN_NAME)
-    df = write_numeric_rank_column(df, authors_rank_dict, Constants.AUTHORS_COLUMN_NAME)
+    df = write_numeric_rank_column(df, publishers_rank_avg_dict, Constants.PUBLISHERS_COLUMN_NAME, Constants.AVG)
+    df = write_numeric_rank_column(df, publishers_rank_count_dict, Constants.PUBLISHERS_COLUMN_NAME, Constants.COUNT)
+    df = write_numeric_rank_column(df, publishers_rank_dict, Constants.PUBLISHERS_COLUMN_NAME, '')
+
+    df = write_numeric_rank_column(df, authors_rank_avg_dict, Constants.AUTHORS_COLUMN_NAME, Constants.AVG)
+    df = write_numeric_rank_column(df, authors_rank_count_dict, Constants.AUTHORS_COLUMN_NAME, Constants.COUNT)
+    df = write_numeric_rank_column(df, authors_rank_dict, Constants.AUTHORS_COLUMN_NAME, '')
+
+    df = drop_single_book_entries(df, authors_rank_dict)
+    # df = drop_bestsellers_outliers(df)
+    print("len: " + str(len(df.index)))
     # writing back to the original file
     df.to_excel(path_out, index=False)
     return SUCCESS
@@ -187,4 +242,4 @@ if __name__ == '__main__':
     run_process = input("Do you want to run preprocess_scraped_xl? ")
     if run_process in ['y', 'Y']:
         preprocess_scraped_xl(Constants.XL_SCRAPED, Constants.XL_ROOT)
-    print("Xl preprocess finished")
+    print("Xl Preprocess Complete")
