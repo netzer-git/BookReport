@@ -2,7 +2,7 @@
 Our Data Mining project, a prediction model based on data from bookdipository.com.
 
 ## Run Project
-#### Creating the DB
+#### 1. Creating the DB
 either:
 1. Run /BookDepository/bookdepository_crawler_slices.py
 2. Move all the slices to /dbSlices
@@ -12,11 +12,12 @@ or:
 1. Run /BookDepository/bookdepository_crawler.py
 2. Move the output file to /dbSlices
 
-#### Preprocess data
+#### 2. Preprocess data
 1. Run xl_preprocess.py
-2. Run df_preprocess.py
+2. Delete outliers using excel
+3. Run df_preprocess.py
 
-#### Run model and evaluation
+#### 3. Run model and evaluation
 1. run model.py
 
 ## Creators
